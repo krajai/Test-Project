@@ -1,0 +1,164 @@
+
+library(RCurl)
+library(ggplot2)
+library(randomForest)
+myfile <- getURL('http://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data', ssl.verifyhost=FALSE, ssl.verifypeer=FALSE)
+head(myfile)
+mydat <- read.table(textConnection(myfile), header = FALSE, sep = ",", 
+                  strip.white = TRUE, stringsAsFactors = TRUE,
+                  col.names=c("age","workclass","fnlwgt","education","educationnum","maritalstatus",
+                              "occupation","relationship","race","sex","capitalgain","capitalloss",
+                              "hoursperweek","nativecountry","income"))
+data= data.frame(mydat)
+rj= data.frame(mydat)
+length(unique(data$education))
+length(unique(data$educationnum))
+#checking if below coluns are identical or nor, by making confusion matrix
+data1 = data.frame(data$education, data$educationnum)
+table(data1$data.education, data1$data.educationnum)
+
+
+data2 = data.frame(data$capitalgain, data$capitalloss)
+
+#checking the table of data to see how many zeros are there in below two column
+#we can see more then 90%of these two column have zeros
+table(data2$data.capitalgain)
+table(data2$data.capitalloss)
+length(unique(data$fnlwgt)) 
+
+dim(data)
+str(data)
+#removing education num, as its same as education column, and removing caital gain and loss,
+#because more then 90% of those column have value zero 
+#Removing Fnlwgt, because it contain unique values are 22000, and our data size is 32561, so it wont be effective for prediction
+data$educationnum=NULL
+data$capitalgain=NULL
+data$capitalloss=NULL
+data$fnlwgt=NULL
+#removing NA and missing data , aroung 1500 data having missing information
+
+View(data)
+is.na(data) = data=='?'
+
+data = na.omit(data)
+dim(data)
+summary(data)
+
+#leveling the columns, thats helps more to visulize 
+
+levels(data$education)<- list(presch=c("Preschool"), 
+                                    primaryschool=c("1st-4th","5th-6th"),
+                                    higherprimary=c("7th-8th"), 
+                                    highsch=c("9th","Assoc-acdm","Assoc-voc","10th"),
+                                    secondsch=c("11th","12th", "HS-grad"), 
+                                    graduate=c("Bachelors","Some-college","Prof-school"),
+                                    master=c("Masters"), phd=c("Doctorate"))
+  
+levels(data$occupation)<- list( clerical=c("Adm-clerical"), 
+                                     lowskillabr=c("Craft-repair","Handlers-cleaners","Machine-op-inspct",
+                                                   "Other-service","Priv-house-serv","Prof-specialty",
+                                                   "Protective-serv"),
+                                     highskillabr=c("Sales","Tech-support","Transport-moving","Armed-Forces", "Exec-managerial"),
+                                     agricultr=c("Farming-fishing")
+)
+levels(data$maritalstatus)<- list(divorce=c("Divorced","Separated"), 
+                                        married=c("Married-AF-spouse","Married-civ-spouse","Married-spouse-absent"),
+                                        notmarried=c("Never-married"), widowed=c("Widowed"))
+
+
+levels(data$nativecountry)<- list(Asia=c("China","India","HongKong","Hong","Iran","Philippines","Taiwan", "Vietnam",
+                                               "Laos","Cambodia","Thailand"),
+                                        NorthAmerica=c("Canada","Cuba","Dominican-Republic","Guatemala","Haiti",
+                                                       "Honduras","Jamaica","Mexico","Nicaragua","Puerto-Rico",
+                                                       "El-Salvador","United-States"),
+                                        SouthAmerica=c("Ecuador","Peru","Columbia","Trinadad&Tobago", "South"),
+                                        Europe=c("France","Germany","Greece","Holand-Netherlands","Italy",
+                                                 "Hungary","Ireland","Poland","Portugal","Scotland","England",
+                                                 "Yugoslavia", "France"),
+                                        other=c("Japan"),
+                                        Island=c("Outlying-US(Guam-USVI-etc)")
+)
+
+#data$workclass= as.character(as.factor(data$workclass))
+unique(data$workclass)
+levels(data$workclass)<- list(Self=c("Self-emp-inc","Self-emp-not-inc", "Private"), S.Govt =c("State-gov"),
+                               F.Govt=c("Federal-gov"),L.Govt=c("Local-gov"),
+                              Unemploy=c("Without-pay")
+                              
+                              
+)
+
+View(data)
+#data$age = scale(data$age)
+#data$hr_per_week = scale(data$hr_per_week)
+
+#0 means income is less then 50k, and 1 is more then 50k 
+data$income = as.factor(ifelse(data$income==data$income[1],0,1))
+
+
+dim(data)
+
+names(data)
+unique(data$income)
+str(data)
+data$workclass= as.integer(as.factor(data$workclass))
+data$education= as.integer(as.factor(data$education))
+data$maritalstatus= as.integer(as.factor(data$maritalstatus))
+data$occupation= as.integer(as.factor(data$occupation))
+data$relationship= as.integer(as.factor(data$relationship))
+data$race= as.integer(as.factor(data$race))
+data$sex= as.integer(as.factor(data$sex))
+#data$income= as.integer(as.factor(data$income))
+
+
+
+names(data)
+unique(data$workclass)
+
+#Percentage
+prop.table(table(data$income))
+names(data)
+
+
+
+smp_size <- floor(0.75 * nrow(data))
+
+## set the seed to make your partition reproductible
+set.seed(123)
+#spliting in train and test
+train_data <- sample(seq_len(nrow(data)), size = smp_size)
+
+train <- data[train_data, ]
+test <- data[-train_data, ]
+
+dim(train)
+dim(test)
+
+?glm
+#applying logistic regression
+glm<- glm(income~., family=binomial,,data = train)
+summary(glm)
+res2 <-  predict(glm, test)
+#confusion matrix
+tab<- table(test$income, res2>0.5)
+tab
+#Accuracy of predicted model
+sum(diag(tab))/sum(tab)
+
+#applying random forest
+rf.model<- randomForest(income~., 
+                        data = train, 
+                        importance=TRUE,
+                        keep.forest=TRUE)
+rf.predict <- predict(rf.model, test)
+#confusion matrix
+tab2=table(test$income, rf.predict) # 88%
+tab2
+#Accuracy of predicted model
+sum(diag(tab2))/sum(tab2)
+dim(test)
+# check the important predictors 
+varImpPlot(rf.model, type = 1)
+#Conculsion
+#compare to logistic regression, random forest work far more better with improve accuracy
+

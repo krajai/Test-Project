@@ -1,4 +1,4 @@
-#this is a Python3 
+##### run this code on  Python3 
 # run few times if dont get the result, as random generanate number are in decimal, and to get our desire list with 
 # specific mean and std  
 import random

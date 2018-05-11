@@ -1,3 +1,5 @@
+####3 run this code on pythone 3
+
 #this task was really interesting, this is the question originally asked by google, and they official answer for this question is 50:50
 #but im not satisfy with that answer, as there are no ground truth about the question,
 #for example there is no truth about what is the probabily of child being girl or boy base on the family tree

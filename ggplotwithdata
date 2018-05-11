@@ -1,3 +1,26 @@
+###### R code
+#below are the few interesting findings according to me.
+#over 22000 have less then 50 and remaing have more then 50k salary
+#the ratio of male to female is around 2:1, and also compare to male, very less female earn more then 50k
+#we can see the very less people earn more then 50k, that too people  only age between 25 to 75 earn more then 
+#50k
+#male who are widowed they  earn more then 50 in all workclass, 
+#male who are not married earn in all workclass more then 50k, where as male who are window either 
+#there dont work or less very income 
+#Asian people earn more then all other people , with working less then 50 hours
+
+#Large number of people who native country is northe and south america, they earn very less compare to others
+#here we can see there are many people who did secondschool, and graduat aroung 70% people
+#but here the interesting thing is that people who did master and phd , the earning ratio of them is 
+#very much higer, if we compare with other
+#people who works more then 32 hours ear more, but there are people who are working more the 40 hours but
+#still there earn less then 50k
+#############################################################################################################################
+
+
+
+
+
 library(RCurl)
 library(ggplot2)
 

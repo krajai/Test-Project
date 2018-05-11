@@ -1,0 +1,20 @@
+#this is a Python3 
+# run few times if dont get the result, as random generanate number are in decimal, and to get our desire list with 
+# specific mean and std  
+import random
+import numpy as ny
+my_std = 10
+my_mean = 1000
+for i in range(1,100000):
+    #x = ny.random.normal(loc=my_mean, scale=my_std, size=100)
+    random.seed(10)
+    x = my_std * ny.random.randn(100) + my_mean
+    if ny.mean(x) <= 1000.5 and ny.mean(x) >= 999.5 and ny.std(x) <= 10.5 and ny.std(x) >= 9.5:
+        print(x.mean())
+
+        print(x.std())
+        print(x)
+    break
+      
+print(ny.mean(x))
+print(ny.std(x))

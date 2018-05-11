@@ -1,0 +1,25 @@
+library(shiny)
+ui <- fluidPage(
+  actionButton(inputId = "divorce", label = "divorce"),
+  actionButton(inputId = "married", label = "married"),
+  actionButton(inputId = "notmarried", label = "notmarried"),
+  actionButton(inputId = "widowed", label = "widowed"),
+  plotOutput("hist")
+)
+
+server <- function(input, output) {
+  
+  rv <- reactiveValues(data = df)
+  
+  observeEvent(input$divorce, { rv$data <- subset(df2, data.maritalstatus== "divorce", select = data.age) })
+  observeEvent(input$married, { rv$data <- subset(df2, data.maritalstatus== "married", select = data.age) })
+  observeEvent(input$notmarried, { rv$data <- subset(df2, data.maritalstatus== "notmarried", select = data.age) })
+  observeEvent(input$widowed, { rv$data <- subset(df2, data.maritalstatus== "widowed", select = data.age) })
+  
+  
+  output$hist <- renderPlot({ 
+    hist(rv$data[,1], col = "grey", main = paste("Age Distribution by Maritial Status"), labels = TRUE, xlab = "Age of population") 
+  })
+}
+
+shinyApp(ui = ui, server = server)
